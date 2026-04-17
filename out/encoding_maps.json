@@ -10,22 +10,9 @@
   },
   "workout_types": [],
   "feature_list": [
-    "Session_Duration (hours)",
-    "HR_Duration",
-    "Workout_Frequency (days/week)",
-    "Resting_BPM",
-    "Max_BPM",
-    "Exercise_Intensity",
-    "Intensity_Duration",
-    "Fat_Percentage",
-    "Experience_Level",
-    "Water_Intake (liters)",
-    "Avg_BPM",
-    "Weight (kg)",
-    "Dream_Weight",
-    "BMI"
+    "log_Calories"
   ],
-  "best_model": "RF (tuned)",
+  "best_model": "Random Forest",
   "calorie_bins": [
     0,
     400,
@@ -38,5 +25,6 @@
     "Medium",
     "High",
     "Very High"
-  ]
+  ],
+  "target_transform": "log1p"
 }

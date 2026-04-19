@@ -1,0 +1,52 @@
+{
+    "model_info": {
+        "best_model": "Ensemble",
+        "target_transform": "log1p",
+        "ensemble_weights": {
+            "rf": 0.5280875213459439,
+            "xgb": 0.16942276658814925,
+            "ann": 0.30248971206590697
+        }
+    },
+    "preprocessing": {
+        "feature_list": [
+            "Session_Duration (hours)",
+            "HR_Duration",
+            "Intensity_Duration",
+            "Exercise_Intensity",
+            "Weight (kg)",
+            "BMI",
+            "BMI_Duration",
+            "HR_Intensity_Ratio",
+            "Weight_Duration"
+        ],
+        "impute_values": {
+            "Exercise_Intensity": 5.0,
+            "Weather_Conditions": "Cloudy"
+        },
+        "weather_map": {
+            "Sunny": 2,
+            "Cloudy": 1,
+            "Rainy": 0
+        },
+        "gender_map": {
+            "Male": 1,
+            "Female": 0
+        }
+    },
+    "classification_logic": {
+        "bins": [
+            0,
+            400,
+            700,
+            1000,
+            9999
+        ],
+        "labels": [
+            "Low",
+            "Medium",
+            "High",
+            "Very High"
+        ]
+    }
+}

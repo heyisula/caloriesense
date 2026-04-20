@@ -3,9 +3,9 @@
         "best_model": "Ensemble",
         "target_transform": "log1p",
         "ensemble_weights": {
-            "rf": 0.5280875213459439,
-            "xgb": 0.16942276658814925,
-            "ann": 0.30248971206590697
+            "rf": 0.6279241312706034,
+            "xgb": 0.29098752199856714,
+            "ann": 0.08108834673082946
         }
     },
     "preprocessing": {

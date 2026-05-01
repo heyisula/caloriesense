@@ -319,6 +319,7 @@ def api_predict_calorie():
 
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
     print("Starting Calorie Sense...")
-    print("Open http://127.0.0.1:5000 in your browser")
-    app.run(debug=True, port=5000)
+    print(f"Open http://127.0.0.1:{port} in your browser")
+    app.run(host="0.0.0.0", port=port, debug=True)

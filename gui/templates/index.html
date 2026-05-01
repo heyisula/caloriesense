@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calorie Sense | AI Fitness Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body class="landing-page">
+  <div class="ambient-background">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+    <span class="grid-glow"></span>
+  </div>
+
+  <main class="landing-shell spotlight-card">
+    <nav class="landing-nav">
+      <a class="brand" href="/index.html" aria-label="Calorie Sense home">
+        <span>
+          <strong>Calorie Sense</strong>
+          <small>AI Fitness System</small>
+        </span>
+      </a>
+    </nav>
+
+    <section class="hero-grid">
+      <div class="hero-copy">
+        <div class="eyebrow"><span></span> Smart calories. Smarter fitness.</div>
+        <h1>AI-powered calorie prediction and fitness assistant platform.</h1>
+        <p>
+          Calorie Sense combines a machine learning calorie prediction module with a Gemini-powered fitness assistant, giving users a modern place to estimate calories and ask personalised exercise questions.
+        </p>
+
+        <div class="hero-actions">
+          <a class="action-card prediction-card" href="/calorie.html">
+            <span>
+              <strong>Calorie Prediction</strong>
+              <small>Open the prediction module</small>
+            </span>
+            <b>→</b>
+          </a>
+
+          <a class="action-card assistant-card" href="/AI.html">
+            <span>
+              <strong>AI Assistant</strong>
+              <small>Start fitness coaching</small>
+            </span>
+            <b>→</b>
+          </a>
+        </div>
+      </div>
+
+      <aside class="hero-panel glass-panel">
+        <div class="panel-header">
+          <div>
+            <small>System Overview</small>
+            <h2>Calorie Sense</h2>
+          </div>
+          <span class="live-dot">Live UI</span>
+        </div>
+
+        <div class="metric-orbit">
+          <div class="metric-center">
+            <span>AI</span>
+            <strong>Fitness</strong>
+          </div>
+          <div class="floating-metric m1"><small>BMI</small><strong>Auto</strong></div>
+          <div class="floating-metric m2"><small>ML</small><strong>Calories</strong></div>
+          <div class="floating-metric m3"><small>Gemini</small><strong>Coach</strong></div>
+        </div>
+
+        <div class="feature-row">
+          <div><strong>01</strong><span>Predict calories from input data</span></div>
+          <div><strong>02</strong><span>Calculate BMI from profile details</span></div>
+          <div><strong>03</strong><span>Ask exercise and fitness questions</span></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

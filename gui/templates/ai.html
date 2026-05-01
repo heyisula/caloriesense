@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Assistant | Calorie Sense</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body class="assistant-page">
+  <div class="ambient-background">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+    <span class="grid-glow"></span>
+  </div>
+
+  <main class="assistant-shell">
+    <aside class="assistant-sidebar glass-panel spotlight-card">
+      <a class="brand" href="/index.html">
+        <span>
+          <strong>Calorie Sense</strong>
+          <small>AI Assistant</small>
+        </span>
+      </a>
+
+      <div class="side-card">
+        <h2>Fitness Coach</h2>
+        <p>Enter your profile first. Then ask about workouts, diet, exercises, and fitness guidance.</p>
+      </div>
+
+      <div class="side-list">
+        <span>Connected Features</span>
+        <p>✓ BMI calculation</p>
+        <p>✓ Exercise dataset</p>
+        <p>✓ Gemini AI responses</p>
+        <p>✓ Profile-based guidance</p>
+      </div>
+
+      <a class="ghost-button" href="/index.html">← Home</a>
+    </aside>
+
+    <section class="assistant-main glass-panel spotlight-card">
+      <header class="assistant-topbar">
+        <div>
+          <small>Calorie Sense Module</small>
+          <h1>AI Fitness Assistant</h1>
+        </div>
+        <span class="live-dot">Backend Connected</span>
+      </header>
+
+      <section class="profile-card" id="profile-card">
+        <p class="card-title">Create Your Fitness Profile</p>
+        <div class="form-grid">
+          <label class="field">
+            <span>First Name</span>
+            <input id="f-name" type="text" placeholder="e.g. Isula" value="Isula" />
+          </label>
+          <label class="field">
+            <span>Sex</span>
+            <select id="f-sex">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Age (18 – 63)</span>
+            <input id="f-age" type="number" min="18" max="63" value="25" />
+          </label>
+          <label class="field">
+            <span>Height (meters)</span>
+            <input id="f-height" type="number" step="0.01" min="1.40" max="2.20" value="1.75" />
+          </label>
+          <label class="field">
+            <span>Weight (kg)</span>
+            <input id="f-weight" type="number" min="30" max="250" value="70" />
+          </label>
+          <label class="field">
+            <span>Hypertension?</span>
+            <select id="f-hypertension">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Diabetes?</span>
+            <select id="f-diabetes">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </label>
+        </div>
+        <button class="primary-button" id="start-btn">Start My Coaching Session →</button>
+        <p id="form-error" class="error-text"></p>
+      </section>
+
+      <section class="chat-card hidden" id="chat-card">
+        <div class="badges" id="user-badges"></div>
+        <div id="chat-box" class="chat-box"></div>
+        <div id="typing-row" class="typing-row hidden">
+          <span class="typing-dots"><i></i><i></i><i></i></span>
+          <span>Coach is thinking…</span>
+        </div>
+        <div class="chat-input-row">
+          <input id="user-input" type="text" placeholder="Ask about workouts, diet, exercises…" />
+          <button id="send-btn" class="send-button">Send</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</body>
+</html>

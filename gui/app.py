@@ -1,6 +1,11 @@
 import os
 import json
 import uuid
+import requests
+import joblib
+import numpy as np
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Hide warning
+import tensorflow as tf
 from pathlib import Path
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
@@ -13,6 +18,16 @@ load_dotenv(BASE_DIR.parent / ".env")
 API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-3.1-flash-lite-preview").strip()
 client = genai.Client(api_key=API_KEY) if API_KEY else None
+
+OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY", "").strip()
+
+try:
+    scaler = joblib.load(BASE_DIR.parent / "out" / "models" / "scaler.pkl")
+    ann_model = tf.keras.models.load_model(BASE_DIR.parent / "out" / "models" / "ann.keras")
+    print("ANN Model and Scaler loaded successfully!")
+except Exception as e:
+    print(f"Warning: Could not load ANN model or scaler: {e}")
+    scaler, ann_model = None, None
 
 with open(BASE_DIR.parent / "data" / "JSON" / "gym_lookup.json", "r", encoding="utf-8") as f:
     GYM_LOOKUP: dict = json.load(f)
@@ -216,6 +231,91 @@ def api_chat():
 
     reply = sessions[session_id].chat(message)
     return jsonify({"reply": reply})
+
+
+@app.route("/api/weather", methods=["GET"])
+def api_weather():
+    if not OPENWEATHER_API_KEY:
+        return jsonify({"error": "OpenWeather API key missing."}), 500
+    try:
+        geo_resp = requests.get("http://ip-api.com/json/")
+        geo_data = geo_resp.json()
+        if geo_data.get("status") == "fail":
+            return jsonify({"error": "Could not detect location."}), 400
+        
+        lat, lon = geo_data["lat"], geo_data["lon"]
+        city = geo_data.get("city", "Unknown")
+        
+        weather_url = "https://api.openweathermap.org/data/2.5/weather"
+        params = {"lat": lat, "lon": lon, "appid": OPENWEATHER_API_KEY, "units": "metric"}
+        weather_resp = requests.get(weather_url, params=params)
+        weather_data = weather_resp.json()
+        
+        if weather_resp.status_code == 200:
+            temp = weather_data["main"]["temp"]
+            desc = weather_data["weather"][0]["description"].lower()
+            
+            # Categorize
+            if "rain" in desc or "drizzle" in desc or "thunder" in desc:
+                condition = "Rainy"
+            elif "clear" in desc or "sun" in desc:
+                condition = "Sunny"
+            else:
+                condition = "Cloudy"
+                
+            return jsonify({
+                "city": city,
+                "temp": temp,
+                "description": desc.capitalize(),
+                "condition": condition
+            })
+        else:
+            return jsonify({"error": weather_data.get("message")}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/predict_calorie", methods=["POST"])
+def api_predict_calorie():
+    if not ann_model or not scaler:
+        return jsonify({"error": "Model not loaded on server."}), 500
+        
+    data = request.get_json(force=True)
+    try:
+        gender_str = data.get("gender", "Male")
+        gender_val = 1.0 if gender_str.lower() == "male" else 0.0
+        
+        age = float(data.get("age", 25))
+        hr = float(data.get("hr", 120))
+        duration = float(data.get("duration", 1.0))
+        intensity = float(data.get("intensity", 5.0))
+        condition = data.get("condition", "Cloudy")
+        
+        max_hr_perc = hr / (220.0 - age) if age < 220 else 0.5
+        workload = intensity * duration
+        
+        rainy_val = 1.0 if condition == "Rainy" else 0.0
+        sunny_val = 1.0 if condition == "Sunny" else 0.0
+        
+        # Order: Gender, Max_HR_Percentage, Weather_Rainy, HR, Workload, Weather_Sunny, Exercise_Duration
+        features = np.array([[
+            gender_val,
+            max_hr_perc,
+            rainy_val,
+            hr,
+            workload,
+            sunny_val,
+            duration
+        ]])
+        
+        scaled_features = scaler.transform(features)
+        pred = ann_model.predict(scaled_features)
+        calories = float(pred[0][0])
+        
+        return jsonify({"calories_burned": round(calories, 2)})
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 if __name__ == "__main__":

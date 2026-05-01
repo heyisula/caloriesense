@@ -500,7 +500,8 @@ select {
   color: var(--text-secondary);
 }
 
-.assistant-shell {
+.assistant-shell,
+.prediction-shell {
   width: calc(100% - 36px);
   max-width: 1800px;
   min-height: calc(100vh - 36px);
@@ -509,9 +510,15 @@ select {
   grid-template-columns: 320px 1fr;
   gap: 18px;
 }
+.prediction-shell {
+  padding-top: 60px;
+  position: relative;
+}
 
 .assistant-sidebar,
-.assistant-main {
+.assistant-main,
+.prediction-sidebar,
+.prediction-main {
   border-radius: var(--radius-xl);
   padding: 24px;
 }
@@ -621,7 +628,8 @@ select {
   font-weight: 700;
 }
 
-.field input,
+.field input[type="text"],
+.field input[type="number"],
 .field select,
 #user-input {
   width: 100%;
@@ -632,6 +640,34 @@ select {
   padding: 13px 14px;
   outline: none;
   transition: border-color .2s, box-shadow .2s, background .2s;
+}
+
+/* Custom Range Slider */
+.field input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+}
+.field input[type="range"]:focus {
+  outline: none;
+}
+.field input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  border: 1px solid var(--border-subtle);
+}
+.field input[type="range"]::-webkit-slider-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -8px;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
 }
 
 .field select option {
@@ -860,7 +896,8 @@ select {
 @media (max-width: 980px) {
 
   .hero-grid,
-  .assistant-shell {
+  .assistant-shell,
+  .prediction-shell {
     grid-template-columns: 1fr;
   }
 
@@ -877,7 +914,8 @@ select {
 
   .landing-shell,
   .placeholder-shell,
-  .assistant-shell {
+  .assistant-shell,
+  .prediction-shell {
     width: calc(100% - 18px);
     margin: 9px auto;
   }
@@ -885,6 +923,8 @@ select {
   .landing-shell,
   .assistant-sidebar,
   .assistant-main,
+  .prediction-sidebar,
+  .prediction-main,
   .placeholder-shell {
     padding: 18px;
     border-radius: 24px;

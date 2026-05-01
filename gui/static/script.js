@@ -82,7 +82,7 @@ async function startSession() {
       `• What should I eat this week?\n` +
       `• How do I do a proper squat?\n` +
       `• Which exercises target my chest?\n\n` +
-      `What would you like to work on first? 💪`
+      `What would you like to work on first?`
     );
   } catch (error) {
     showFormError(error.message || 'Could not reach the backend. Make sure app.py is running.');
@@ -202,4 +202,145 @@ document.addEventListener('DOMContentLoaded', () => {
       if (event.key === 'Enter') sendMessage();
     });
   }
+
+  // Prediction Page
+  const predictBtn = byId('predict-btn');
+  if (predictBtn) {
+    predictBtn.addEventListener('click', predictCalories);
+    fetchWeather();
+    
+    const intensitySlider = byId('p-intensity');
+    const intensityVal = byId('intensity-val');
+    if (intensitySlider && intensityVal) {
+      intensitySlider.addEventListener('input', (e) => {
+        intensityVal.textContent = e.target.value;
+      });
+    }
+  }
 });
+
+// --- CALORIE PREDICTION LOGIC ---
+let currentWeatherCondition = "Cloudy";
+
+async function fetchWeather() {
+  const weatherCity = byId('weather-city');
+  const weatherTemp = byId('weather-temp');
+  const weatherDesc = byId('weather-desc');
+  const weatherIcon = byId('weather-icon');
+
+  if (!weatherCity) return;
+
+  try {
+    const response = await fetch('/api/weather');
+    const data = await response.json();
+
+    if (response.ok && !data.error) {
+      weatherCity.textContent = data.city;
+      weatherTemp.textContent = Math.round(data.temp) + '°C';
+      weatherDesc.textContent = data.description;
+      currentWeatherCondition = data.condition;
+
+      if (data.condition === "Sunny") {
+        weatherIcon.textContent = "☀️";
+        weatherIcon.style.color = "#fbbf24";
+      } else if (data.condition === "Rainy") {
+        weatherIcon.textContent = "🌧️";
+        weatherIcon.style.color = "#60a5fa";
+      } else {
+        weatherIcon.textContent = "☁️";
+        weatherIcon.style.color = "#94a3b8";
+      }
+    } else {
+      weatherCity.textContent = "Weather unavailable";
+      weatherDesc.textContent = data.error || "Could not fetch weather";
+      weatherIcon.textContent = "⚠️";
+    }
+  } catch (err) {
+    weatherCity.textContent = "Weather unavailable";
+    weatherDesc.textContent = "Network error";
+    weatherIcon.textContent = "⚠️";
+  }
+}
+
+async function predictCalories() {
+  const predictBtn = byId('predict-btn');
+  const errorText = byId('predict-error');
+
+  if (!predictBtn) return;
+
+  errorText.style.display = 'none';
+  predictBtn.disabled = true;
+  predictBtn.textContent = 'Predicting...';
+
+  const gender = byId('p-gender').value;
+  const age = Number(byId('p-age').value);
+  const hr = Number(byId('p-hr').value);
+  const duration = Number(byId('p-duration').value);
+  const intensity = Number(byId('p-intensity').value);
+
+  if (!age || age < 10 || age > 100) { errorText.textContent = "Invalid age"; errorText.style.display = 'block'; predictBtn.disabled = false; predictBtn.textContent = 'Predict Calories Burned →'; return; }
+  if (!hr || hr < 40 || hr > 220) { errorText.textContent = "Invalid heart rate"; errorText.style.display = 'block'; predictBtn.disabled = false; predictBtn.textContent = 'Predict Calories Burned →'; return; }
+  if (!duration || duration <= 0 || duration > 10) { errorText.textContent = "Invalid duration"; errorText.style.display = 'block'; predictBtn.disabled = false; predictBtn.textContent = 'Predict Calories Burned →'; return; }
+  if (!intensity || intensity < 1 || intensity > 10) { errorText.textContent = "Invalid intensity (1-10)"; errorText.style.display = 'block'; predictBtn.disabled = false; predictBtn.textContent = 'Predict Calories Burned →'; return; }
+
+  try {
+    const response = await fetch('/api/predict_calorie', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gender, age, hr, duration, intensity, condition: currentWeatherCondition })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      errorText.textContent = data.error || "Prediction failed";
+      errorText.style.display = 'block';
+    } else {
+      byId('result-placeholder').classList.add('hidden');
+      byId('result-display').classList.remove('hidden');
+
+      const targetVal = data.calories_burned;
+      animateValue(byId('calorie-value'), 0, targetVal, 1500);
+
+      const calorieValueEl = byId('calorie-value');
+      calorieValueEl.style.webkitTextFillColor = 'transparent';
+
+      if (targetVal < 200) {
+        calorieValueEl.style.background = 'linear-gradient(135deg, #4ade80, #10b981)';
+        calorieValueEl.style.textShadow = '0 0 20px rgba(16, 185, 129, 0.3)';
+      } else if (targetVal < 400) {
+        calorieValueEl.style.background = 'linear-gradient(135deg, #fbbf24, #f59e0b)';
+        calorieValueEl.style.textShadow = '0 0 20px rgba(245, 158, 11, 0.3)';
+      } else if (targetVal < 600) {
+        calorieValueEl.style.background = 'linear-gradient(135deg, #f87171, #ef4444)';
+        calorieValueEl.style.textShadow = '0 0 20px rgba(239, 68, 68, 0.3)';
+      } else {
+        calorieValueEl.style.background = 'linear-gradient(135deg, #c084fc, #a855f7)';
+        calorieValueEl.style.textShadow = '0 0 20px rgba(168, 85, 247, 0.3)';
+      }
+      calorieValueEl.style.webkitBackgroundClip = 'text';
+    }
+  } catch (err) {
+    errorText.textContent = "Network error";
+    errorText.style.display = 'block';
+  }
+
+  predictBtn.disabled = false;
+  predictBtn.textContent = 'Predict Calories Burned →';
+}
+
+function animateValue(obj, start, end, duration) {
+  let startTimestamp = null;
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    const easeProgress = 1 - Math.pow(1 - progress, 4);
+    obj.innerHTML = (easeProgress * (end - start) + start).toFixed(2);
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    } else {
+      obj.innerHTML = end.toFixed(2);
+    }
+  };
+  window.requestAnimationFrame(step);
+}

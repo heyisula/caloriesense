@@ -1,2 +1,6 @@
+[build]
+[build.variables]
+RAILPACK_PYTHON_VERSION = "3.12"
+
 [deploy]
 startCommand = "gunicorn gui.app:app --bind 0.0.0.0:$PORT"

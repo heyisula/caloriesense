@@ -1,0 +1,14 @@
+,RF Importance,Permutation Importance,Combined Score
+Exercise_Duration,1.0,1.0,1.0
+HR,0.6554,0.593,0.6242
+Gender,0.2228,0.3427,0.2828
+Max_HR_Percentage,0.1293,0.0837,0.1065
+Workload,0.0839,0.0843,0.0841
+Weight,0.0188,0.0111,0.015
+Height,0.009,0.0031,0.006
+BMI,0.006,0.0015,0.0038
+Exercise_Intensity,0.0053,0.0015,0.0034
+Age,0.0052,0.0013,0.0033
+Weather_Conditions_Rainy,0.0013,0.0009,0.0011
+Weather_Conditions_Sunny,0.0003,0.0001,0.0002
+Age_Group,0.0,0.0,0.0

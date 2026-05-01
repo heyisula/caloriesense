@@ -1,0 +1,55 @@
+{
+    "model_info": {
+        "best_model": "Ensemble",
+        "target_transform": "log1p",
+        "ensemble_weights": {
+            "rf": 0.0,
+            "xgb": 0.29985260976615036,
+            "ann": 0.7001473902338496
+        }
+    },
+    "preprocessing": {
+        "feature_list": [
+            "HR",
+            "Gender",
+            "Weather_Conditions_Rainy",
+            "Max_HR_Percentage",
+            "Workload",
+            "Weather_Conditions_Sunny",
+            "Exercise_Duration"
+        ],
+        "impute_values": {
+            "HR": 140.0,
+            "Gender": 0.0,
+            "Weather_Conditions_Rainy": 0.0,
+            "Max_HR_Percentage": 0.776595744680851,
+            "Workload": 3.3,
+            "Weather_Conditions_Sunny": 0.0,
+            "Exercise_Duration": 0.6666666666666666
+        },
+        "weather_map": {
+            "Sunny": 2,
+            "Cloudy": 1,
+            "Rainy": 0
+        },
+        "gender_map": {
+            "Male": 1,
+            "Female": 0
+        }
+    },
+    "classification_logic": {
+        "bins": [
+            0,
+            200,
+            400,
+            600,
+            Infinity
+        ],
+        "labels": [
+            "Low",
+            "Medium",
+            "High",
+            "Very High"
+        ]
+    }
+}

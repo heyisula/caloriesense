@@ -1,0 +1,7 @@
+Model,Train R²,Test R²,ΔR² (gap),Train MAE,Test MAE,Train RMSE,Test RMSE,Diagnosis
+ANN,0.9779,0.9772,0.0007,19.65,20.24,25.35,26.0,✅  Good fit
+XGB (tuned),0.9872,0.9745,0.0127,14.31,21.29,19.3,27.49,✅  Good fit
+XGBoost,0.9819,0.9721,0.0097,17.75,23.0,22.93,28.74,✅  Good fit
+RF (tuned),0.9909,0.9699,0.021,12.38,22.51,16.24,29.86,✅  Good fit
+Random Forest,0.9885,0.9659,0.0225,13.96,24.85,18.29,31.76,✅  Good fit
+Ridge (Poly Interactions),0.9444,0.9428,0.0016,31.39,32.15,40.16,41.16,✅  Good fit

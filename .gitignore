@@ -3,3 +3,7 @@ credentials/
 credentials.*
 *.pem
 *.key
+.env
+*.env.*
+
+

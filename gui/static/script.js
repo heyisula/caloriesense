@@ -160,8 +160,12 @@ function addMessage(role, text) {
   label.textContent = role === 'user' ? 'You' : 'Coach';
 
   const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  bubble.textContent = text;
+  bubble.className = 'bubble markdown-body';
+  if (role === 'bot' && typeof marked !== 'undefined') {
+    bubble.innerHTML = marked.parse(text);
+  } else {
+    bubble.textContent = text;
+  }
 
   messageWrapper.appendChild(label);
   messageWrapper.appendChild(bubble);

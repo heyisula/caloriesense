@@ -1,0 +1,2 @@
+[deploy]
+startCommand = "gunicorn gui.app:app --bind 0.0.0.0:$PORT"

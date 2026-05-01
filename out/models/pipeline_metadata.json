@@ -1,12 +1,7 @@
 {
     "model_info": {
-        "best_model": "Ensemble",
-        "target_transform": "log1p",
-        "ensemble_weights": {
-            "rf": 0.0,
-            "xgb": 0.29985260976615036,
-            "ann": 0.7001473902338496
-        }
+        "best_model": "ANN",
+        "ensemble_weights": null
     },
     "preprocessing": {
         "feature_list": [
@@ -28,9 +23,23 @@
             "Exercise_Duration": 0.6666666666666666
         },
         "weather_map": {
-            "Sunny": 2,
-            "Cloudy": 1,
-            "Rainy": 0
+            "encoding": "one_hot_drop_first",
+            "columns": [
+                "Weather_Conditions_Rainy",
+                "Weather_Conditions_Sunny"
+            ],
+            "Rainy": [
+                1,
+                0
+            ],
+            "Sunny": [
+                0,
+                1
+            ],
+            "Cloudy": [
+                0,
+                0
+            ]
         },
         "gender_map": {
             "Male": 1,

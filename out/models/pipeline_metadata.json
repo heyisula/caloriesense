@@ -5,19 +5,19 @@
     },
     "preprocessing": {
         "feature_list": [
-            "HR",
             "Gender",
-            "Weather_Conditions_Rainy",
             "Max_HR_Percentage",
+            "Weather_Conditions_Rainy",
+            "HR",
             "Workload",
             "Weather_Conditions_Sunny",
             "Exercise_Duration"
         ],
         "impute_values": {
-            "HR": 140.0,
             "Gender": 0.0,
-            "Weather_Conditions_Rainy": 0.0,
             "Max_HR_Percentage": 0.776595744680851,
+            "Weather_Conditions_Rainy": 0.0,
+            "HR": 140.0,
             "Workload": 3.3,
             "Weather_Conditions_Sunny": 0.0,
             "Exercise_Duration": 0.6666666666666666

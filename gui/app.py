@@ -179,7 +179,7 @@ def index():
 
 @app.route("/AI.html")
 def ai_page():
-    return render_template("AI.html")
+    return render_template("ai.html")
 
 
 @app.route("/calorie.html")

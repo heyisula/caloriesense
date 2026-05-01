@@ -222,45 +222,72 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- CALORIE PREDICTION LOGIC ---
 let currentWeatherCondition = "Cloudy";
 
-async function fetchWeather() {
-  const weatherCity = byId('weather-city');
-  const weatherTemp = byId('weather-temp');
-  const weatherDesc = byId('weather-desc');
-  const weatherIcon = byId('weather-icon');
-
-  if (!weatherCity) return;
-
-  try {
-    const response = await fetch('/api/weather');
-    const data = await response.json();
-
-    if (response.ok && !data.error) {
-      weatherCity.textContent = data.city;
-      weatherTemp.textContent = Math.round(data.temp) + '°C';
-      weatherDesc.textContent = data.description;
-      currentWeatherCondition = data.condition;
-
-      if (data.condition === "Sunny") {
-        weatherIcon.textContent = "☀️";
-        weatherIcon.style.color = "#fbbf24";
-      } else if (data.condition === "Rainy") {
-        weatherIcon.textContent = "🌧️";
-        weatherIcon.style.color = "#60a5fa";
-      } else {
-        weatherIcon.textContent = "☁️";
-        weatherIcon.style.color = "#94a3b8";
-      }
-    } else {
-      weatherCity.textContent = "Weather unavailable";
-      weatherDesc.textContent = data.error || "Could not fetch weather";
-      weatherIcon.textContent = "⚠️";
+    // --- NEW: Geolocation helper ---
+    function getUserLocation() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          console.warn('Geolocation not supported');
+          resolve(null);
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+          },
+          (err) => {
+            console.warn('Geolocation permission denied or error', err);
+            resolve(null);
+          }
+        );
+      });
     }
-  } catch (err) {
-    weatherCity.textContent = "Weather unavailable";
-    weatherDesc.textContent = "Network error";
-    weatherIcon.textContent = "⚠️";
-  }
-}
+
+    async function fetchWeather() {
+      const weatherCity = byId('weather-city');
+      const weatherTemp = byId('weather-temp');
+      const weatherDesc = byId('weather-desc');
+      const weatherIcon = byId('weather-icon');
+
+      if (!weatherCity) return;
+
+      try {
+        // Try to get client location first
+        const clientPos = await getUserLocation();
+        const payload = clientPos ? clientPos : {};
+        const response = await fetch('/api/weather', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+
+        if (response.ok && !data.error) {
+          weatherCity.textContent = data.city;
+          weatherTemp.textContent = Math.round(data.temp) + '°C';
+          weatherDesc.textContent = data.description;
+          currentWeatherCondition = data.condition;
+
+          if (data.condition === "Sunny") {
+            weatherIcon.textContent = "☀️";
+            weatherIcon.style.color = "#fbbf24";
+          } else if (data.condition === "Rainy") {
+            weatherIcon.textContent = "🌧️";
+            weatherIcon.style.color = "#60a5fa";
+          } else {
+            weatherIcon.textContent = "☁️";
+            weatherIcon.style.color = "#94a3b8";
+          }
+        } else {
+          weatherCity.textContent = "Weather unavailable";
+          weatherDesc.textContent = data.error || "Could not fetch weather";
+          weatherIcon.textContent = "⚠️";
+        }
+      } catch (err) {
+        weatherCity.textContent = "Weather unavailable";
+        weatherDesc.textContent = "Network error";
+        weatherIcon.textContent = "⚠️";
+      }
+    }
 
 async function predictCalories() {
   const predictBtn = byId('predict-btn');

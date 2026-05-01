@@ -233,18 +233,29 @@ def api_chat():
     return jsonify({"reply": reply})
 
 
-@app.route("/api/weather", methods=["GET"])
+@app.route("/api/weather", methods=["GET", "POST"])
 def api_weather():
     if not OPENWEATHER_API_KEY:
         return jsonify({"error": "OpenWeather API key missing."}), 500
     try:
-        geo_resp = requests.get("http://ip-api.com/json/")
-        geo_data = geo_resp.json()
-        if geo_data.get("status") == "fail":
-            return jsonify({"error": "Could not detect location."}), 400
-        
-        lat, lon = geo_data["lat"], geo_data["lon"]
-        city = geo_data.get("city", "Unknown")
+        lat, lon, city = None, None, "Unknown"
+
+        # Check if coordinates were sent in POST body
+        if request.method == "POST":
+            data = request.get_json(silent=True)
+            if data:
+                lat = data.get("lat")
+                lon = data.get("lon")
+                city = "Your Location"
+
+        # If no coordinates from client, fall back to IP-based detection
+        if lat is None or lon is None:
+            geo_resp = requests.get("http://ip-api.com/json/")
+            geo_data = geo_resp.json()
+            if geo_data.get("status") == "fail":
+                return jsonify({"error": "Could not detect location."}), 400
+            lat, lon = geo_data["lat"], geo_data["lon"]
+            city = geo_data.get("city", "Unknown")
         
         weather_url = "https://api.openweathermap.org/data/2.5/weather"
         params = {"lat": lat, "lon": lon, "appid": OPENWEATHER_API_KEY, "units": "metric"}

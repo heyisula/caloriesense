@@ -1,5 +1,6 @@
 {
     "cSpell.ignoreWords": [
         "Enter"
-    ]
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:system"
 }

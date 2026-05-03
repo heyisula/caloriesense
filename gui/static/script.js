@@ -82,6 +82,7 @@ async function startSession() {
       `• What should I eat this week?\n` +
       `• How do I do a proper squat?\n` +
       `• Which exercises target my chest?\n\n` +
+      `• What exercises help me the reduce/gain weight?\n\n` +
       `What would you like to work on first?`
     );
   } catch (error) {
@@ -219,10 +220,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// --- CALORIE PREDICTION LOGIC ---
+// Calorie Prediction 
 let currentWeatherCondition = "Cloudy";
 
-    // --- NEW: Geolocation helper ---
+    // Indetify Geolocation with Users Permission falling back if to ip based location if the user denied or unsupported by not giving access to geolocation API
     function getUserLocation() {
       return new Promise((resolve) => {
         if (!navigator.geolocation) {
@@ -251,7 +252,7 @@ let currentWeatherCondition = "Cloudy";
       if (!weatherCity) return;
 
       try {
-        // Try to get client location first
+        // Fetching location
         const clientPos = await getUserLocation();
         const payload = clientPos ? clientPos : {};
         const response = await fetch('/api/weather', {
@@ -305,10 +306,34 @@ async function predictCalories() {
   const duration = Number(byId('p-duration').value);
   const intensity = Number(byId('p-intensity').value);
 
-  if (!age || age < 10 || age > 100) { errorText.textContent = "Invalid age"; errorText.style.display = 'block'; predictBtn.disabled = false; predictBtn.textContent = 'Predict Calories Burned →'; return; }
-  if (!hr || hr < 40 || hr > 220) { errorText.textContent = "Invalid heart rate"; errorText.style.display = 'block'; predictBtn.disabled = false; predictBtn.textContent = 'Predict Calories Burned →'; return; }
-  if (!duration || duration <= 0 || duration > 10) { errorText.textContent = "Invalid duration"; errorText.style.display = 'block'; predictBtn.disabled = false; predictBtn.textContent = 'Predict Calories Burned →'; return; }
-  if (!intensity || intensity < 1 || intensity > 10) { errorText.textContent = "Invalid intensity (1-10)"; errorText.style.display = 'block'; predictBtn.disabled = false; predictBtn.textContent = 'Predict Calories Burned →'; return; }
+  if (!age || age < 10 || age > 100) { 
+    errorText.textContent = "Invalid age";
+    errorText.style.display = 'block';
+    predictBtn.disabled = false;
+    predictBtn.textContent = 'Predict Calories Burned →';
+    return; 
+  }
+  if (!hr || hr < 40 || hr > 220) { 
+    errorText.textContent = "Invalid heart rate";
+    errorText.style.display = 'block';
+    predictBtn.disabled = false;
+    predictBtn.textContent = 'Predict Calories Burned →';
+    return;
+  }
+  if (!duration || duration <= 0 || duration > 10) { 
+    errorText.textContent = "Invalid duration";
+    errorText.style.display = 'block';
+    predictBtn.disabled = false;
+    predictBtn.textContent = 'Predict Calories Burned →';
+    return; 
+  }
+  if (!intensity || intensity < 1 || intensity > 10) { 
+    errorText.textContent = "Invalid intensity (1-10)"; 
+    errorText.style.display = 'block'; 
+    predictBtn.disabled = false; 
+    predictBtn.textContent = 'Predict Calories Burned →'; 
+    return; 
+  }
 
   try {
     const response = await fetch('/api/predict_calorie', {

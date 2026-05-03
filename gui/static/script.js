@@ -81,7 +81,7 @@ async function startSession() {
       `• Give me a weekly workout plan\n` +
       `• What should I eat this week?\n` +
       `• How do I do a proper squat?\n` +
-      `• Which exercises target my chest?\n\n` +
+      `• Which exercises target my chest?\ns` +
       `• What exercises help me the reduce/gain weight?\n\n` +
       `What would you like to work on first?`
     );

@@ -161,7 +161,6 @@ QUERY HANDLING:
 
 TONE:
 - Friendly, clear, concise, motivating
-- Avoid long paragraphs
 
 RESPONSE LENGTH:
 - Keep concise unless full plan is required

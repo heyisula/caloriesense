@@ -1,16 +1,19 @@
 import os
 import json
+import profile
 import uuid
 import requests
 import joblib
 import numpy as np
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0' # Hide warning
 import tensorflow as tf
 from pathlib import Path
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+
+
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR.parent / ".env")
@@ -52,7 +55,7 @@ def get_bmi_level(bmi: float) -> str:
         return "Normal"
     if bmi < 30.0:
         return "Overweight"
-    return "Obuse"  # kept to match the original dataset spelling
+    return "Obese"
 
 
 def lookup_recommendations(sex, age, height_m, weight_kg, hypertension, diabetes):
@@ -62,7 +65,7 @@ def lookup_recommendations(sex, age, height_m, weight_kg, hypertension, diabetes
 
     for key, val in GYM_LOOKUP.items():
         p = key.split("|")
-        # key format: Sex|Age|Hypertension|Diabetes|Level|FitnessGoal|FitnessType
+        # format Sex|Age|Hypertension|Diabetes|Level|FitnessGoal|FitnessType
         if (
             p[0] == sex
             and int(p[1]) == age
@@ -96,28 +99,72 @@ def build_system_prompt(profile: dict, lookup: dict) -> str:
     if not recs_text:
         recs_text = "No exact match. Give general advice based on the user profile."
 
-    return f"""You are an expert AI Fitness Coach for the Calorie Sense web app.
-Give personalised, motivating, safe fitness advice.
+    return f"""
+You are an expert AI Fitness Coach for the Calorie Sense web app.
+Give personalised, safe, and motivating fitness advice.
 
 USER PROFILE:
-  Name: {profile.get('name', 'User')} | Sex: {profile['sex']} | Age: {profile['age']} yrs
-  Height: {profile['height']} m | Weight: {profile['weight']} kg
-  BMI: {lookup['bmi']} ({lookup['level']}) | Hypertension: {profile['hypertension']} | Diabetes: {profile['diabetes']}
+Name: {profile.get('name', 'User')} | Sex: {profile['sex']} | Age: {profile['age']} yrs
+Height: {profile['height']} m | Weight: {profile['weight']} kg
+BMI: {lookup['bmi']} ({lookup['level']}) | Hypertension: {profile['hypertension']} | Diabetes: {profile['diabetes']}
 
-PERSONALISED RECOMMENDATIONS FROM OUR DATABASE:
+PERSONALISED RECOMMENDATIONS:
 {recs_text}
 
 AVAILABLE EXERCISES:
 {exercises_text}
 
-RULES:
-1. Base advice on the profile, recommendations, and available exercise data when relevant.
-2. Pick exercises from the Available Exercises list when relevant.
-3. If Hypertension or Diabetes is Yes, always add a safety reminder.
-4. Structure workout plans with clear days, sets, and reps.
-5. For diet questions, use the diet guidance from the recommendations.
-6. Never give unsafe medical advice. Refer to a doctor for medical issues.
-7. Be friendly, clear, simple, and motivating.
+----------------------
+RULES
+----------------------
+
+OUTPUT FORMAT:
+- Greeting using name
+- Short fitness summary
+- Workout Plan (Day-wise with sets/reps/duration)
+- Optional tips (max 3 bullets)
+- Safety notes (if applicable)
+- 1-line motivation
+
+INTENSITY RULES:
+- Underweight → light + gradual strength
+- Normal → moderate balanced plan
+- Overweight → cardio + strength
+- Obese → low-impact only
+- If Hypertension/Diabetes → avoid high intensity spikes
+
+EXERCISE RULES:
+- Only select from AVAILABLE EXERCISES
+- Match exercises to user condition
+- Include variety (cardio + strength + mobility)
+
+PROGRESSION:
+- Suggest gradual increase over time
+- Avoid sudden intensity jumps
+
+DIET RULES:
+- Use only recommendation data
+- Keep advice simple
+- No extreme diets
+
+SAFETY:
+- No medical diagnosis
+- No extreme workouts or diets
+- Add safety note if Hypertension/Diabetes = Yes
+- Suggest consulting a doctor when needed
+
+QUERY HANDLING:
+- Workout request → full structured plan
+- General advice → short tips
+- Diet → use recommendations
+- If unclear → ask a short question
+
+TONE:
+- Friendly, clear, concise, motivating
+- Avoid long paragraphs
+
+RESPONSE LENGTH:
+- Keep concise unless full plan is required
 """
 
 
@@ -159,7 +206,7 @@ class CoachSession:
         except Exception as e:
             error_str = str(e)
             if "503" in error_str or "high demand" in error_str.lower():
-                reply = "Currently experiencing high demand and having trouble connecting. Please wait a moment and try again!"
+                reply = f"Dear {self.profile.get('name', 'User')}, we are currently experiencing high demand and having trouble connecting. Please wait a moment and try again!"
             else:
                 reply = f"API error: {e}"
 
@@ -240,7 +287,7 @@ def api_weather():
     try:
         lat, lon, city = None, None, "Unknown"
 
-        # Check if coordinates were sent in POST body
+        # Checking if client sent coordinates (from geolocation API)
         if request.method == "POST":
             data = request.get_json(silent=True)
             if data:
@@ -248,7 +295,7 @@ def api_weather():
                 lon = data.get("lon")
                 city = "Your Location"
 
-        # If no coordinates from client, fall back to IP-based detection
+        # If no coordinates from client then fall back to IP-based detection (for users who deny geolocation permission or unsupported devices)
         if lat is None or lon is None:
             geo_resp = requests.get("http://ip-api.com/json/")
             geo_data = geo_resp.json()
@@ -266,7 +313,7 @@ def api_weather():
             temp = weather_data["main"]["temp"]
             desc = weather_data["weather"][0]["description"].lower()
             
-            # Categorize
+            # Categorizing weather condition for calorie prediction
             if "rain" in desc or "drizzle" in desc or "thunder" in desc:
                 condition = "Rainy"
             elif "clear" in desc or "sun" in desc:
@@ -308,7 +355,7 @@ def api_predict_calorie():
         rainy_val = 1.0 if condition == "Rainy" else 0.0
         sunny_val = 1.0 if condition == "Sunny" else 0.0
         
-        # Order: Gender, Max_HR_Percentage, Weather_Rainy, HR, Workload, Weather_Sunny, Exercise_Duration
+        # Order for model input Gender, Max_HR_Percentage, Weather_Rainy, HR, Workload, Weather_Sunny, Exercise_Duration
         features = np.array([[
             gender_val,
             max_hr_perc,
